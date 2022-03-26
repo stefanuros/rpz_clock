@@ -30,6 +30,7 @@ def init():
   
   # TODO Move this to the screen switching code
   initStatus()
+  text.WriteAll()
   
 def main():
   global now, prevMinute, updateFrame
@@ -53,8 +54,8 @@ def main():
   
 def initStatus():
   text.AddText(text="##:## XX", x=5, y=10, size=textSize, Id="Time")
-  text.AddText(text="XXXXXX", x=5, y=textSize + 20, size=subtextSize, Id="Date")
-  # text.AddText(text="XXX ##", x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
+  text.AddText(text="XXXXXX", x=5, y=textSize + 20, size=subtextSize, Id="Day")
+  text.AddText(text="XXX ##", x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
   
 def deInitStatus():
   text.RemoveText("Time")
@@ -67,11 +68,11 @@ def statusUpdate():
     updateFrame = True
     
     currentTime = now.strftime("%H:%M")
-    # currentDay = now.strftime("%A")
-    currentDate = now.strftime("%A, %b %d")
+    currentDay = now.strftime("%A")
+    currentDate = now.strftime("%b %d")
     
     text.UpdateText("Time", currentTime)
-    # text.UpdateText("Day", currentDay)
+    text.UpdateText("Day", currentDay)
     text.UpdateText("Date", currentDate)
     
 
