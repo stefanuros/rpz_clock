@@ -1,11 +1,3 @@
-# from time import sleep
-# from papirus import PapirusText
-# from papirus import Papirus
-# from papirus import PapirusTextPos
-
-# text = PapirusTextPos(False, rotation = 0)
-
-from cgitb import text
 from papirus import Papirus
 from papirus import PapirusTextPos
 from datetime import datetime
