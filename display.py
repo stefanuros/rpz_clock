@@ -24,6 +24,7 @@ def init():
   global screen, text
 
   screen = Papirus()
+  # screen.partial_update()
   text = PapirusTextPos(False)
   
   text.Clear()
@@ -53,13 +54,9 @@ def main():
     prevMinute = now.minute
   
 def initStatus():
-  text.AddText(text="##:## XX", x=5, y=10, size=textSize, Id="Time")
+  text.AddText(text="##:##", x=5, y=10, size=textSize, Id="Time")
   text.AddText(text="XXXXXX", x=5, y=textSize + 20, size=subtextSize, Id="Day")
   text.AddText(text="XXX ##", x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
-  
-def deInitStatus():
-  text.RemoveText("Time")
-  text.RemoveText("Date")
 
 def statusUpdate():
   global updateFrame
