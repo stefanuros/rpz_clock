@@ -13,16 +13,16 @@ now = datetime.now()
 
 
 def init():
-  global screen, text
+  global text
 
-  screen = Papirus()
-  screen.partial_update()
   text = PapirusTextPos(False)
+  text.partialUpdates = True
   
   # TODO Move this to the screen switching code
   initStatus()
   
-  text.WriteAll()
+def deinit():
+  text.clear()
   
 def main():
   global now, prevMinute, updateFrame
@@ -38,6 +38,7 @@ def main():
     prevMinute = now.minute
     
     if updateFrame:
+      print("Update Main")
       text.WriteAll()
       updateFrame = False
     
@@ -46,15 +47,20 @@ def main():
     
   
 def initStatus():
+  global updateFrame
+  
+  print("Init Status")
   text.AddText(text=now.strftime("%H:%M"), x=5, y=10, size=textSize, Id="Time")
   text.AddText(text=now.strftime("%A"), x=5, y=textSize + 20, size=subtextSize, Id="Day")
   text.AddText(text=now.strftime("%b %d"), x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
+  
+  updateFrame = True
 
 def statusUpdate():
-  global updateFrame
+  global updateFrame, text
   
   if(prevMinute != now.minute): 
-    print("time updated")
+    print("Update Status")
     updateFrame = True
     
     currentTime = now.strftime("%H:%M")
@@ -64,8 +70,11 @@ def statusUpdate():
     text.UpdateText("Time", currentTime)
     text.UpdateText("Day", currentDay)
     text.UpdateText("Date", currentDate)
-    
 
 if __name__ == "__main__":
-  init()
-  main()
+  try:
+    init()
+    main()
+  finally:
+    print("Ending...")
+    deinit()
