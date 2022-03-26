@@ -13,6 +13,9 @@ import time
 
 textSize = 25
 subtextSize = 15
+prevMinute = 0
+now = datetime.now()
+
 
 def init():
   global screen, text
@@ -41,7 +44,7 @@ def main():
   
 def initStatus():
   text.AddText(text="##:## XX", x=5, y=5, size=textSize, Id="Time")
-  text.AddText(text="XXXXX, XXX ##", x=5, y=5, size=subtextSize, Id="Date")
+  text.AddText(text="XXXXX, XXX ##", x=5, y=textSize + 10, size=subtextSize, Id="Date")
   
 def deInitStatus():
   text.RemoveText("Time")
