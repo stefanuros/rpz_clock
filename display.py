@@ -14,6 +14,8 @@ import time
 textSize = 25
 subtextSize = 15
 
+updateFrame = False
+
 prevMinute = 0
 now = datetime.now()
 
@@ -30,7 +32,7 @@ def init():
   initStatus()
   
 def main():
-  global now, prevMinute
+  global now, prevMinute, updateFrame
   
   while(True):
     # Get current time
@@ -39,7 +41,9 @@ def main():
     # Update the screen
     statusUpdate()
     
-    text.WriteAll()
+    if updateFrame:
+      text.WriteAll()
+      updateFrame = False
     
     # Sleep
     time.sleep(1)
@@ -49,20 +53,25 @@ def main():
   
 def initStatus():
   text.AddText(text="##:## XX", x=5, y=10, size=textSize, Id="Time")
-  text.AddText(text="XXXXX, XXX ##", x=5, y=textSize + 20, size=subtextSize, Id="Day")
-  text.AddText(text="XXXXX, XXX ##", x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
+  text.AddText(text="XXXXXX", x=5, y=textSize + 20, size=subtextSize, Id="Date")
+  # text.AddText(text="XXX ##", x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
   
 def deInitStatus():
   text.RemoveText("Time")
   text.RemoveText("Date")
 
 def statusUpdate():
+  global updateFrame
+  
   if(prevMinute != now.minute): 
+    updateFrame = True
+    
     currentTime = now.strftime("%H:%M")
-    currentDay = now.strftime("%A")
-    currentDate = now.strftime("%b %d")
+    # currentDay = now.strftime("%A")
+    currentDate = now.strftime("%A, %b %d")
     
     text.UpdateText("Time", currentTime)
+    # text.UpdateText("Day", currentDay)
     text.UpdateText("Date", currentDate)
     
 
