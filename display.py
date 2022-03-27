@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-from papirus import Papirus, PapirusComposite, LM75B
+from papirus import Papirus, PapirusComposite
 from datetime import datetime
 import time
-from keys import weatherApiKey
-import geocoder
-from PIL import Image, ImageDraw, ImageFont
+# from keys import weatherApiKey
+# import geocoder
+# from PIL import Image, ImageDraw, ImageFont
 from enum import Enum
 
 class IDS(Enum):
@@ -12,6 +11,8 @@ class IDS(Enum):
   DAY = "Day"
   DATE = "Date"
   WEATHER_ICON = "WeatherIcon"
+  TEMP = "Temp"
+  TEMP_RANGE = "TempRange"
 
 TEXT_SIZE = 35
 SUBTEXT_SIZE = 17
@@ -19,38 +20,33 @@ SUBTEXT_SIZE = 17
 REGULAR_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 BOLD_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
 
-WEATHER_ICON_SIZE = 48
-WEATHER_ICON_X = 110
-WEATHER_ICON_Y = 5
+WEATHER_ICON_SIZE = 50
+WEATHER_ICON_BASE = "./weather_icons/"
+
+DEBUG = True
 
 # REGULAR_FONT = ImageFont.truetype(REGULAR_FONT_PATH, TEXT_SIZE)
 # REGULAR_CHAR_WIDTH = REGULAR_FONT.getsize("0")[0]
 # BOLD_FONT = ImageFont.truetype(BOLD_FONT_PATH, SUBTEXT_SIZE)
 # BOLD_CHAR_WIDTH = BOLD_FONT.getsize("0")[0]
 
-WHITE, BLACK = 1, 0
+# WHITE, BLACK = 1, 0
 
-WEATHER_ICON_BASE = "./weather_icons/"
-
-updateFrame = False
 firstUpdate = True
 
 prevMinute = -1
+prevHour = -1
 now = datetime.now()
 
 currentWeatherIcon = "icons8-sun-48.png"
 
 def init():
-  global composite, screen, image, draw, sensor
+  global composite
   
-  print("Starting...")
+  if(DEBUG):
+    print("Starting...")
 
   composite = PapirusComposite(False)
-  composite.partialUpdates = True
-  screen = Papirus()
-  composite.partialUpdates = True
-  image = Image.new('1', screen.size, WHITE)
-  draw = ImageDraw.Draw(image)
   
   # TODO Move this to the screen switching code
   initStatus()
@@ -59,7 +55,7 @@ def deinit():
   composite.Clear()
   
 def main():
-  global now, prevMinute, updateFrame, firstUpdate
+  global now, prevMinute, prevHour, firstUpdate
   
   while(True):
     # Get current time
@@ -68,36 +64,39 @@ def main():
     # Update the screen
     statusUpdate()
     
+    if prevMinute != now.minute or firstUpdate:
+      if(DEBUG):
+        print("Main Update")
+      updateFrame = False
+      firstUpdate = False
+      
+      composite.WriteAll(now.hour == prevHour)
+
     # Update values
     prevMinute = now.minute
-    
-    if updateFrame:
-      print("Main Update")
-      composite.WriteAll()
-      updateFrame = False
-    
-    firstUpdate = False
-    
+    prevHour = now.hour
+      
     # Sleep
     time.sleep(1)
     
-def initStatus():
-  global updateFrame
+def initStatus():  
+  if(DEBUG):
+    print("Status Init")
+  composite.AddText(text="", x=5, y=5, size=TEXT_SIZE, Id=IDS.TIME.value, fontPath=BOLD_FONT_PATH)
+  composite.AddText(text="", x=5, y=TEXT_SIZE + 15, size=SUBTEXT_SIZE, Id=IDS.DAY.value, fontPath=REGULAR_FONT_PATH)
+  composite.AddText(text="", x=5, y=TEXT_SIZE + 15 + SUBTEXT_SIZE, size=SUBTEXT_SIZE, Id=IDS.DATE.value, fontPath=REGULAR_FONT_PATH)
   
-  print("Status Init")
-  composite.AddText(text=now.strftime("%H:%M"), x=5, y=5, size=TEXT_SIZE, Id=IDS.TIME.value, fontPath=BOLD_FONT_PATH)
-  composite.AddText(text=now.strftime("%A"), x=5, y=TEXT_SIZE + 15, size=SUBTEXT_SIZE, Id=IDS.DAY.value, fontPath=REGULAR_FONT_PATH)
-  composite.AddText(text=now.strftime("%b %d"), x=5, y=TEXT_SIZE + 15 + SUBTEXT_SIZE, size=SUBTEXT_SIZE, Id=IDS.DATE.value, fontPath=REGULAR_FONT_PATH)
-  
-  composite.AddImg(WEATHER_ICON_BASE + currentWeatherIcon, WEATHER_ICON_X, WEATHER_ICON_Y, (WEATHER_ICON_SIZE, WEATHER_ICON_SIZE), Id=IDS.WEATHER_ICON.value)
+  composite.AddImg(WEATHER_ICON_BASE + currentWeatherIcon, 130, 5, (WEATHER_ICON_SIZE, WEATHER_ICON_SIZE), Id=IDS.WEATHER_ICON.value)
+  composite.AddText(text="", x=130, y=WEATHER_ICON_SIZE + 10, size=20, Id=IDS.TEMP.value, fontPath=REGULAR_FONT_PATH)
+  composite.AddText(text="", x=110, y=WEATHER_ICON_SIZE + 30, size=10, Id=IDS.TEMP_RANGE.value, fontPath=REGULAR_FONT_PATH)
 
 def statusUpdate():
-  global updateFrame, composite
+  global composite
   
   # Time Update
   if(prevMinute != now.minute or firstUpdate): 
-    print("Status Update")
-    updateFrame = True
+    if(DEBUG):
+      print("Status Update")
     
     currentTime = now.strftime("%H:%M")
     currentDay = now.strftime("%A")
@@ -108,13 +107,16 @@ def statusUpdate():
     composite.UpdateText(IDS.DATE.value, currentDate, REGULAR_FONT_PATH)
   
   # Weather Update
-  if(now.minute % 1 == 0 or firstUpdate):
+  if(now.minute % 30 == 0 or firstUpdate):
     composite.UpdateImg(IDS.WEATHER_ICON.value, WEATHER_ICON_BASE + currentWeatherIcon)
+    composite.UpdateText(IDS.TEMP.value, "21\u00b0C", REGULAR_FONT_PATH)
+    composite.UpdateText(IDS.TEMP_RANGE.value, "17\u00b0C/21\u00b0C", REGULAR_FONT_PATH)
 
 if __name__ == "__main__":
   try:
     init()
     main()
   finally:
-    print("Ending...")
+    if(DEBUG):
+      print("Ending...")
     deinit()
