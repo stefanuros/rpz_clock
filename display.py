@@ -19,8 +19,8 @@ SUBTEXT_SIZE = 17
 REGULAR_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 BOLD_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
 
-WEATHER_ICON_SIZE = 25
-WEATHER_ICON_X = 120
+WEATHER_ICON_SIZE = 48
+WEATHER_ICON_X = 110
 WEATHER_ICON_Y = 5
 
 # REGULAR_FONT = ImageFont.truetype(REGULAR_FONT_PATH, TEXT_SIZE)
@@ -38,7 +38,7 @@ firstUpdate = True
 prevMinute = -1
 now = datetime.now()
 
-currentWeatherIcon = "icons8-sun-96"
+currentWeatherIcon = "icons8-sun-48.png"
 
 def init():
   global composite, screen, image, draw, sensor
