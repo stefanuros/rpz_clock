@@ -1,9 +1,10 @@
+#!/usr/bin/env python3
 from papirus import Papirus
 from papirus import PapirusTextPos
 from datetime import datetime
 import time
 
-textSize = 25
+textSize = 30
 subtextSize = 15
 
 updateFrame = False
@@ -14,6 +15,8 @@ now = datetime.now()
 
 def init():
   global text
+  
+  print("Starting...")
 
   text = PapirusTextPos(False)
   text.partialUpdates = True
@@ -22,6 +25,7 @@ def init():
   initStatus()
   
 def deinit():
+  # TODO text has no attribute clear
   text.clear()
   
 def main():
@@ -38,7 +42,7 @@ def main():
     prevMinute = now.minute
     
     if updateFrame:
-      print("Update Main")
+      print("Main Update")
       text.WriteAll()
       updateFrame = False
     
@@ -49,10 +53,10 @@ def main():
 def initStatus():
   global updateFrame
   
-  print("Init Status")
-  text.AddText(text=now.strftime("%H:%M"), x=5, y=10, size=textSize, Id="Time")
-  text.AddText(text=now.strftime("%A"), x=5, y=textSize + 20, size=subtextSize, Id="Day")
-  text.AddText(text=now.strftime("%b %d"), x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date")
+  print("Status Init")
+  text.AddText(text=now.strftime("%H:%M"), x=5, y=10, size=textSize, Id="Time", fontPath="./fonts/Courier_Prime/CourierPrime-Bold.ttf")
+  text.AddText(text=now.strftime("%A"), x=5, y=textSize + 20, size=subtextSize, Id="Day", fontPath="./fonts/Courier_Prime/CourierPrime-Regular.ttf")
+  text.AddText(text=now.strftime("%b %d"), x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date", fontPath="./fonts/Courier_Prime/CourierPrime-Regular.ttf")
   
   updateFrame = True
 
@@ -60,7 +64,7 @@ def statusUpdate():
   global updateFrame, text
   
   if(prevMinute != now.minute): 
-    print("Update Status")
+    print("Status Update")
     updateFrame = True
     
     currentTime = now.strftime("%H:%M")
