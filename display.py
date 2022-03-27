@@ -12,8 +12,8 @@ updateFrame = False
 prevMinute = -1
 now = datetime.now()
 
-boldFontPath = "/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf"
-regularFontPath = "/usr/share/fonts/truetype/freefont/FreeMono.ttf"
+boldFontPath = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
+regularFontPath = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 
 
 def init():
