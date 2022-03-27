@@ -30,11 +30,15 @@ WEATHER_ICON_Y = 5
 
 WHITE, BLACK = 1, 0
 
+WEATHER_ICON_BASE = "./weather_icons/"
+
 updateFrame = False
 firstUpdate = True
 
 prevMinute = -1
 now = datetime.now()
+
+currentWeatherIcon = "icons8-sun-96"
 
 def init():
   global composite, screen, image, draw, sensor
@@ -85,7 +89,7 @@ def initStatus():
   composite.AddText(text=now.strftime("%A"), x=5, y=TEXT_SIZE + 15, size=SUBTEXT_SIZE, Id=IDS.DAY.value, fontPath=REGULAR_FONT_PATH)
   composite.AddText(text=now.strftime("%b %d"), x=5, y=TEXT_SIZE + 15 + SUBTEXT_SIZE, size=SUBTEXT_SIZE, Id=IDS.DATE.value, fontPath=REGULAR_FONT_PATH)
   
-  composite.AddImg('./weather_icons/10d.png', WEATHER_ICON_X, WEATHER_ICON_Y, (WEATHER_ICON_SIZE, WEATHER_ICON_SIZE), Id=IDS.WEATHER_ICON.value)
+  composite.AddImg(WEATHER_ICON_BASE + currentWeatherIcon, WEATHER_ICON_X, WEATHER_ICON_Y, (WEATHER_ICON_SIZE, WEATHER_ICON_SIZE), Id=IDS.WEATHER_ICON.value)
 
 def statusUpdate():
   global updateFrame, composite
@@ -105,7 +109,7 @@ def statusUpdate():
   
   # Weather Update
   if(now.minute % 1 == 0 or firstUpdate):
-    composite.UpdateImg(IDS.WEATHER_ICON.value, './weather_icons/10d.png')
+    composite.UpdateImg(IDS.WEATHER_ICON.value, WEATHER_ICON_BASE + currentWeatherIcon)
 
 if __name__ == "__main__":
   try:
