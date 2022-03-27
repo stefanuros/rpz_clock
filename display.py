@@ -4,7 +4,7 @@ from papirus import PapirusTextPos
 from datetime import datetime
 import time
 
-textSize = 30
+textSize = 35
 subtextSize = 15
 
 updateFrame = False
@@ -54,9 +54,9 @@ def initStatus():
   global updateFrame
   
   print("Status Init")
-  text.AddText(text=now.strftime("%H:%M"), x=5, y=10, size=textSize, Id="Time", fontPath="./fonts/Courier_Prime/CourierPrime-Bold.ttf")
-  text.AddText(text=now.strftime("%A"), x=5, y=textSize + 20, size=subtextSize, Id="Day", fontPath="./fonts/Courier_Prime/CourierPrime-Regular.ttf")
-  text.AddText(text=now.strftime("%b %d"), x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date", fontPath="./fonts/Courier_Prime/CourierPrime-Regular.ttf")
+  text.AddText(text=now.strftime("%H:%M"), x=5, y=10, size=textSize, Id="Time", fontPath="./fonts/Share_Tech_Mono/ShareTechMono-Regular.ttf")
+  text.AddText(text=now.strftime("%A"), x=5, y=textSize + 20, size=subtextSize, Id="Day", fontPath="./fonts/Share_Tech_Mono/ShareTechMono-Regular.ttf")
+  text.AddText(text=now.strftime("%b %d"), x=5, y=textSize + 20 + subtextSize, size=subtextSize, Id="Date", fontPath="./fonts/Share_Tech_Mono/ShareTechMono-Regular.ttf")
   
   updateFrame = True
 
