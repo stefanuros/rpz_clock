@@ -125,8 +125,8 @@ def statusUpdate():
     
     # Draw the time
     data["draw"].text((SPACING, SPACING), currentTime, fill=BLACK, font=HEADING_FONT)
-    data["draw"].text((SPACING, SPACING + HEADING_SIZE + SPACING), currentDay, fill=BLACK, font=REGULAR_FONT)
-    data["draw"].text((SPACING, SPACING + HEADING_SIZE + SPACING + REGULAR_SIZE), currentDate, fill=BLACK, font=REGULAR_FONT)
+    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE), currentDay, fill=BLACK, font=REGULAR_FONT)
+    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE + REGULAR_SIZE), currentDate, fill=BLACK, font=REGULAR_FONT)
 
     # Draw the weather
     timeWidth = HEADING_CHAR_WIDTH * len(currentTime)
