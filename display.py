@@ -111,7 +111,7 @@ def statusUpdate():
       print("Weather Data Update")
     
     data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + "icons8-sun-48.png"
-    data["weatherData"]["currentWeatherImage"] = Image.open(data["weatherData"]["currentWeatherIcon"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE))
+    data["weatherData"]["currentWeatherImage"] = Image.open(data["weatherData"]["currentWeatherIcon"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE)).tobitmap()
   
   # Draw Update
   if(data["prevMinute"] != data["now"].minute or data["firstUpdate"]): 
