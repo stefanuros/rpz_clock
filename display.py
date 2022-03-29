@@ -15,7 +15,7 @@ BOLD_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
 HEADING_SIZE = 35
 SUBHEADING_SIZE = 20
 REGULAR_SIZE = 15
-SMALL_SIZE = 10
+SMALL_SIZE = 12
 
 HEADING_FONT = ImageFont.truetype(BOLD_FONT_PATH, HEADING_SIZE)
 HEADING_CHAR_WIDTH = HEADING_FONT.getsize("0")[0]
@@ -90,6 +90,8 @@ def init():
   data["epd"] = Papirus()
   data["image"] = Image.new('1', data["epd"].size, WHITE)
   data["draw"] = ImageDraw.Draw(data["image"])
+  
+  data["epd"].clear()
 
 def deinit():
   data["epd"].clear()
@@ -122,10 +124,14 @@ def updateScreen(shouldUpdate):
   data["currentScreenUpdate"]()
 
   data["epd"].display(data["image"])
-  if(data["now"].hour == data["prevHour"]):
-    data["epd"].partial_update()
-  else:
+  
+  if(data["now"].hour != data["prevHour"]):
+    data["epd"].clear()
+    
+  if(data["now"].minute % 10 == 0 or data["firstUpdate"]):
     data["epd"].update()
+  else:
+    data["epd"].partial_update()
     
   data["firstUpdate"] = False
 
