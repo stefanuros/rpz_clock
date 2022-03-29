@@ -199,7 +199,7 @@ def statusUpdate():
     
     # Draw the time
     data["draw"].text((SPACING, SPACING), currentTime, fill=BLACK, font=HEADING_FONT)
-    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE), currentDay, fill=BLACK, font=SUBHEADING_FONT)
+    data["draw"].text((SPACING, (2*SPACING) + HEADING_SIZE), currentDay, fill=BLACK, font=SUBHEADING_FONT)
     data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE + REGULAR_SIZE), currentDate, fill=BLACK, font=SUBHEADING_FONT)
 
     # Draw the weather
@@ -229,13 +229,13 @@ def statusUpdate():
     
     data["draw"].text((tempX, SPACING + WEATHER_ICON_SIZE), tempText, fill=BLACK, font=SUBHEADING_FONT)
     data["draw"].text((feelsLikeX, SPACING + WEATHER_ICON_SIZE + (SUBHEADING_SIZE - SMALL_SIZE)), feelsLikeText, fill=BLACK, font=SMALL_FONT)
-    data["draw"].text((highLowX, SPACING + WEATHER_ICON_SIZE + SUBHEADING_SIZE), highLowText, fill=BLACK, font=REGULAR_FONT)
+    data["draw"].text((highLowX, SPACING + WEATHER_ICON_SIZE + SUBHEADING_SIZE + 2), highLowText, fill=BLACK, font=REGULAR_FONT)
 
 if __name__ == "__main__":
   try:
+    print("Starting...")
     init()
     main()
   finally:
-    if(DEBUG):
-      print("Ending...")
+    print("Ending...")
     deinit()
