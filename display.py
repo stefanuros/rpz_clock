@@ -1,9 +1,11 @@
 from papirus import Papirus
 from datetime import datetime
 import time
-# from keys import weatherApiKey
-# import geocoder
+from keys import weatherApiKey
+import geocoder
 from PIL import Image, ImageDraw, ImageFont
+import threading
+import requests
 
 DEBUG = True
 
@@ -33,21 +35,6 @@ SCREEN_WIDTH, SCREEN_HEIGHT = 200, 96
 
 WHITE, BLACK = 1, 0
 
-data = {
-  "firstUpdate": True,
-  "now": datetime.now(),
-  "prevMinute": None,
-  "prevHour": None,
-  "currentScreenUpdate": None,
-  "epd": None,
-  "image": None,
-  "draw": None,
-  "weatherData": {
-    "currentWeatherIcon": None,
-    "currentWeatherImage": None
-  }
-}
-
 WEATHER_ICON= {
   "01d": "icons8-sun-90.png",
   "01n": "icons8-sun-90.png",
@@ -70,6 +57,30 @@ WEATHER_ICON= {
   "UNKNOWN": "icons8-query-90.png"
 }
 
+data = {
+  "firstUpdate": True,
+  "now": datetime.now(),
+  "prevMinute": -1,
+  "prevHour": -1,
+  "currentScreenUpdate": None,
+  "epd": None,
+  "image": None,
+  "draw": None,
+  "weatherData": {
+    "currentWeatherIcon": WEATHER_ICON_BASE_PATH + WEATHER_ICON["01d"],
+    "currentWeatherImage": Image.open(WEATHER_ICON_BASE_PATH + WEATHER_ICON["01d"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE)),
+    "retryWeather": False,
+    "data": {
+      "main": {
+        "temp": 0,
+        "feels_like": 0,
+        "temp_min": 0,
+        "temp_max": 0
+      }
+    }
+  }
+}
+
 def init():
   if(DEBUG):
     print("Starting...")
@@ -87,7 +98,10 @@ def deinit():
 def main():
   while(True):
     
-    updateScreen(data["prevMinute"] != data["now"].minute or data["firstUpdate"])
+    updateScreen(
+      data["prevMinute"] != data["now"].minute 
+      or data["firstUpdate"]
+    )
     updateValues()
 
     # Sleep
@@ -97,7 +111,7 @@ def main():
 def updateScreen(shouldUpdate):
   if not shouldUpdate:
     return
-  
+    
   if(DEBUG):
     print("Main Update")
 
@@ -124,19 +138,55 @@ def updateValues():
   # Get current time
   data["now"] = datetime.now()
 
+def fetchWeatherData():
+  if DEBUG:
+    print("Getting weather data")
+    
+  lat, long = geocoder.ip('me').latlng
+  
+  params = {
+    "lat": str(lat),
+    "lon": str(long),
+    "appid": weatherApiKey,
+    "units": "metric"  
+  }
+  
+  response = requests.get("https://api.openweathermap.org/data/2.5/weather", params=params)
+  
+  if(not response.ok):
+    data["retryWeather"] = True
+    if(DEBUG):
+      print("Get weather failed for the following reason")
+      print(str(response.status_code) + ": " + response.reason)
+    return
+  
+  json = response.json()
+  
+  data["weatherData"]["data"] = json
+  
+  data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + WEATHER_ICON[json["weather"][0]["icon"]]
+  data["weatherData"]["currentWeatherImage"] = Image.open(data["weatherData"]["currentWeatherIcon"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE))
+  
+  if DEBUG:
+    print("Finished Weather fetching")
+
 # Update and draw the status page
 def statusUpdate():
+  isNextMinute = data["prevMinute"] != data["now"].minute
   
-    # Weather Update
-  if(data["now"].minute % 30 == 0 or data["firstUpdate"]):
-    if DEBUG:
-      print("Weather Data Update")
-    
-    data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + WEATHER_ICON["01d"]
-    data["weatherData"]["currentWeatherImage"] = Image.open(data["weatherData"]["currentWeatherIcon"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE))
+  # Weather Update
+  if(
+    (data["now"].minute % 30 == 0 and isNextMinute)
+    or data["firstUpdate"] 
+    or (data["weatherData"]["retryWeather"] and isNextMinute)
+  ):
+    weatherFetcher = threading.Thread(target=fetchWeatherData)
+    weatherFetcher.start()
+    if(data["firstUpdate"]):
+      weatherFetcher.join()
   
   # Draw Update
-  if(data["prevMinute"] != data["now"].minute or data["firstUpdate"]): 
+  if(isNextMinute or data["firstUpdate"]): 
     if(DEBUG):
       print("Status Update")
     
@@ -147,13 +197,34 @@ def statusUpdate():
     
     # Draw the time
     data["draw"].text((SPACING, SPACING), currentTime, fill=BLACK, font=HEADING_FONT)
-    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE), currentDay, fill=BLACK, font=REGULAR_FONT)
-    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE + REGULAR_SIZE), currentDate, fill=BLACK, font=REGULAR_FONT)
+    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE), currentDay, fill=BLACK, font=SUBHEADING_FONT)
+    data["draw"].text((SPACING, (3*SPACING) + HEADING_SIZE + REGULAR_SIZE), currentDate, fill=BLACK, font=SUBHEADING_FONT)
 
     # Draw the weather
-    timeWidth = HEADING_CHAR_WIDTH * len(currentTime)
-    weatherIconX = (SCREEN_WIDTH - timeWidth - SPACING - WEATHER_ICON_SIZE)//2 + (SPACING * 2 + timeWidth)
-    data["image"].paste(data["weatherData"]["currentWeatherImage"], (weatherIconX, SPACING)) 
+    timeWidth = (HEADING_CHAR_WIDTH * len(currentTime)) + SPACING
+    weatherX = round((SCREEN_WIDTH - timeWidth - WEATHER_ICON_SIZE)/2 + timeWidth)
+    data["image"].paste(data["weatherData"]["currentWeatherImage"], (weatherX, SPACING)) 
+    
+    temp = round(data["weatherData"]["data"]["main"]["temp"])
+    tempText = f"{temp}\u00b0C"
+    tempWidth = len(tempText) * SUBHEADING_CHAR_WIDTH
+    
+    feelsLike = round(data["weatherData"]["data"]["main"]["feels_like"])
+    feelsLikeText = f"{feelsLike}\u00b0C"
+    feelsLikeWidth = len(feelsLikeText) * SMALL_CHAR_WIDTH
+    
+    tempX = (SCREEN_WIDTH - timeWidth - (tempWidth + feelsLikeWidth))/2 + timeWidth
+    feelsLikeX = tempX + tempWidth
+    
+    highTemp = round(data["weatherData"]["data"]["main"]["temp_max"])
+    lowTemp = round(data["weatherData"]["data"]["main"]["temp_min"])
+    highLowText = f"{lowTemp}\u00b0C/{highTemp}\u00b0C"
+    highLowWidth = len(highLowText) * REGULAR_CHAR_WIDTH
+    highLowX = (SCREEN_WIDTH - timeWidth - highLowWidth)/2 + timeWidth
+    
+    data["draw"].text((tempX, SPACING + WEATHER_ICON_SIZE), tempText, fill=BLACK, font=SUBHEADING_FONT)
+    data["draw"].text((feelsLikeX, SPACING + WEATHER_ICON_SIZE + (SUBHEADING_SIZE - SMALL_SIZE)), tempText, fill=BLACK, font=SMALL_FONT)
+    data["draw"].text((highLowX, SPACING + WEATHER_ICON_SIZE + SUBHEADING_SIZE), highLowText, fill=BLACK, font=REGULAR_FONT)
 
 if __name__ == "__main__":
   try:
