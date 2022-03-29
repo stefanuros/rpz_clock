@@ -29,7 +29,7 @@ SMALL_CHAR_WIDTH = SMALL_FONT.getsize("0")[0]
 SPACING = 5
 
 WEATHER_ICON_SIZE = 48
-WEATHER_ICON_BASE_PATH = "./weather_icons/"
+WEATHER_ICON_BASE_PATH = "/home/pi/projects/rpz_status/weather_icons/"
 
 SCREEN_WIDTH, SCREEN_HEIGHT = 200, 96
 
