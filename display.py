@@ -7,14 +7,14 @@ from PIL import Image, ImageDraw, ImageFont
 import threading
 import requests
 
-DEBUG = True
+DEBUG = False
 
 REGULAR_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 BOLD_FONT_PATH = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf"
 
 HEADING_SIZE = 35
 SUBHEADING_SIZE = 20
-REGULAR_SIZE = 17
+REGULAR_SIZE = 15
 SMALL_SIZE = 10
 
 HEADING_FONT = ImageFont.truetype(BOLD_FONT_PATH, HEADING_SIZE)
@@ -155,16 +155,18 @@ def fetchWeatherData():
   
   if(not response.ok):
     data["retryWeather"] = True
-    if(DEBUG):
-      print("Get weather failed for the following reason")
-      print(str(response.status_code) + ": " + response.reason)
+    print("Get weather failed for the following reason")
+    print(str(response.status_code) + ": " + response.reason)
     return
   
   json = response.json()
   
   data["weatherData"]["data"] = json
   
-  data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + WEATHER_ICON[json["weather"][0]["icon"]]
+  if json["weather"][0]["icon"] in WEATHER_ICON:
+    data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + WEATHER_ICON[json["weather"][0]["icon"]]
+  else:
+    data["weatherData"]["currentWeatherIcon"] = WEATHER_ICON_BASE_PATH + WEATHER_ICON["UNKNOWN"]
   data["weatherData"]["currentWeatherImage"] = Image.open(data["weatherData"]["currentWeatherIcon"]).resize((WEATHER_ICON_SIZE, WEATHER_ICON_SIZE))
   
   if DEBUG:
@@ -210,7 +212,10 @@ def statusUpdate():
     tempWidth = len(tempText) * SUBHEADING_CHAR_WIDTH
     
     feelsLike = round(data["weatherData"]["data"]["main"]["feels_like"])
-    feelsLikeText = f"{feelsLike}\u00b0C"
+    if(feelsLike == temp):
+      feelsLikeText = ""
+    else:
+      feelsLikeText = f"{feelsLike}\u00b0C"
     feelsLikeWidth = len(feelsLikeText) * SMALL_CHAR_WIDTH
     
     tempX = (SCREEN_WIDTH - timeWidth - (tempWidth + feelsLikeWidth))/2 + timeWidth
@@ -223,7 +228,7 @@ def statusUpdate():
     highLowX = (SCREEN_WIDTH - timeWidth - highLowWidth)/2 + timeWidth
     
     data["draw"].text((tempX, SPACING + WEATHER_ICON_SIZE), tempText, fill=BLACK, font=SUBHEADING_FONT)
-    data["draw"].text((feelsLikeX, SPACING + WEATHER_ICON_SIZE + (SUBHEADING_SIZE - SMALL_SIZE)), tempText, fill=BLACK, font=SMALL_FONT)
+    data["draw"].text((feelsLikeX, SPACING + WEATHER_ICON_SIZE + (SUBHEADING_SIZE - SMALL_SIZE)), feelsLikeText, fill=BLACK, font=SMALL_FONT)
     data["draw"].text((highLowX, SPACING + WEATHER_ICON_SIZE + SUBHEADING_SIZE), highLowText, fill=BLACK, font=REGULAR_FONT)
 
 if __name__ == "__main__":
