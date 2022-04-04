@@ -40,10 +40,10 @@ WEATHER_ICON= {
   "01n": "icons8-sun-90.png",
   "02d": "icons8-partly-cloudy-day-90.png",
   "02n": "icons8-partly-cloudy-day-90.png",
-  "03d": "icons8-partly-cloudy-day-90.png",
-  "03n": "icons8-partly-cloudy-day-90.png",
-  "04d": "icons8-clouds-90.png",
-  "04n": "icons8-clouds-90.png",
+  "03d": "icons8-clouds-90.png",
+  "03n": "icons8-clouds-90.png",
+  "04d": "icons8-onedrive-90.png",
+  "04n": "icons8-onedrive-90.png",
   "09d": "icons8-rain-90.png",
   "09n": "icons8-rain-90.png",
   "10d": "icons8-rain-cloud-90.png",
@@ -52,8 +52,8 @@ WEATHER_ICON= {
   "11n": "icons8-storm-90.png",
   "13d": "icons8-snow-90.png",
   "13n": "icons8-snow-90.png",
-  "50d": "icons8-haze-90.png",
-  "50n": "icons8-haze-90.png",
+  "50d": "icons8-fog-90.png",
+  "50n": "icons8-fog-90.png",
   "UNKNOWN": "icons8-query-90.png"
 }
 
