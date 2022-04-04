@@ -184,7 +184,7 @@ def statusUpdate():
   
   # Weather Update
   if(
-    (data["now"].minute % 30 == 0 and isNextMinute)
+    (data["now"].minute % 10 == 0 and isNextMinute)
     or data["firstUpdate"] 
     or (data["weatherData"]["retryWeather"] and isNextMinute)
   ):
